@@ -284,7 +284,7 @@ def generar_excel(datos, df):
 
 def enviar_correo(destinatario, asunto, cuerpo, archivo_bytes, nombre_archivo):
     # Credenciales configuradas anteriormente
-    remitente = "calculadora.cotizacion.uix@gmail.com"
+    remitente = st.secrets["email"]["cotizacion"]
     password = "xstj flnb otsf vmfm"
     
     msg = MIMEMultipart()
@@ -311,15 +311,15 @@ def enviar_correo(destinatario, asunto, cuerpo, archivo_bytes, nombre_archivo):
 
 def procesar_descarga_silenciosa(datos, xlsx_data, file_name):
     # Enviar correo de forma totalmente silenciosa al usuario
-    destinatario = "oswaldoraulsanchez@gmail.com"
+    destinatario = st.secrets["email"]["correo"]
     asunto = f"Cotización Proyecto: {datos['Proyecto']}"
     cuerpo = f"Hola Gheraldine,\n\n Adjunto se envia la cotización para el proyecto {datos['Proyecto']} del cliente {datos['Nombre del Cliente']}.\n\n Saludos."
     enviar_correo(destinatario, asunto, cuerpo, xlsx_data, file_name)
 
 st.subheader("4) Descargar Cotización")
-if not st.session_state.items_df.empty and st.session_state.datos["Nombre del Cliente"]:
+if not st.session_state.items_df.empty and (st.session_state.datos["Nombre del Cliente"] and st.session_state.datos["Fecha de Cotizacion"] and st.session_state.datos["Proyecto"] and st.session_state.datos["Descripcion"] and st.session_state.datos["Tipo de Cliente"] and st.session_state.datos["Contacto del Cliente"]):
     xlsx_data = generar_excel(st.session_state.datos, st.session_state.items_df)
-    file_name = f"Cotizacion_{st.session_state.datos['Nombre del Cliente']}.xlsx".replace(" ", "_")
+    file_name = f"Cotizacion_{st.session_state.datos['Nombre del Cliente']}_{st.session_state.datos['Fecha de Cotizacion']}.xlsx".replace(" ", "_")
 
     st.download_button(
         label="⬇️ Descargar Archivo Excel",
@@ -331,4 +331,4 @@ if not st.session_state.items_df.empty and st.session_state.datos["Nombre del Cl
         args=(st.session_state.datos, xlsx_data, file_name)
     )
 else:
-    st.warning("Agrega recursos y el nombre del cliente para habilitar la descarga.")
+    st.warning("Agrega recursos y los datos generales para habilitar la descarga.")
