@@ -391,12 +391,11 @@ if incluir_monederos:
             format_func=lambda i: f"${montos_disponibles[i]:,.0f}",
             key="sel_monto_monedero"
         )
-        st.info(f"Con fee ({fee_pct}): **${montos_con_fee[monto_idx]:,.2f}**", icon="💳")
 
     with colM3:
         personas_monedero = st.number_input("👤 Número de Personas", min_value=1, value=1, key="num_personas_monedero")
         costo_total_monedero = montos_con_fee[monto_idx] * personas_monedero
-        st.success(f"Costo total c/fee: **${costo_total_monedero:,.2f}**", icon="🧾")
+        st.success(f"Costo total **${costo_total_monedero:,.2f}**", icon="🧾")
 
     colBtnM, _ = st.columns([1, 2])
     with colBtnM:
@@ -597,7 +596,7 @@ def generar_excel(datos, df, monederos_list=None):
             ws.merge_cells(start_row=row_mon_titulo, start_column=1, end_row=row_mon_titulo, end_column=6)
 
             # Cabecera de monederos
-            mon_headers = ["Tipo", "Monto Base", "Fee", "Monto c/Fee", "Personas", "Total c/Fee"]
+            mon_headers = ["Tipo", "Monto Base", "# de Monederos", "Total"]
             row_mon_header = row_mon_titulo + 1
             for ci, h in enumerate(mon_headers, start=1):
                 c = ws.cell(row=row_mon_header, column=ci, value=h)
@@ -608,7 +607,7 @@ def generar_excel(datos, df, monederos_list=None):
 
             # Filas de monederos
             for ri, mon in enumerate(monederos_list, start=row_mon_header + 1):
-                vals = [mon["Tipo"], mon["Monto Base"], mon["Fee"], mon["Monto c/Fee"], mon["Personas"], mon["Total c/Fee"]]
+                vals = [mon["Tipo"], mon["Monto Base"], mon["Personas"], mon["Total c/Fee"]]
                 for ci, v in enumerate(vals, start=1):
                     c = ws.cell(row=ri, column=ci, value=v)
                     c.border = thin_border
@@ -620,12 +619,12 @@ def generar_excel(datos, df, monederos_list=None):
 
             # Fila de total de monederos
             row_mon_total = row_mon_header + len(monederos_list) + 1
-            lbl = ws.cell(row=row_mon_total, column=5, value="TOTAL MONEDEROS")
+            lbl = ws.cell(row=row_mon_total, column=3, value="TOTAL MONEDEROS")
             lbl.font = Font(bold=True, color="0E2B5C")
             lbl.alignment = Alignment(horizontal="right", vertical="center")
             lbl.fill = accent_fill
             lbl.border = thin_border
-            val_mon = ws.cell(row=row_mon_total, column=6, value=total_monederos_excel)
+            val_mon = ws.cell(row=row_mon_total, column=4, value=total_monederos_excel)
             val_mon.number_format = '"$"#,##0.00'
             val_mon.font = Font(bold=True, size=11, color="0E2B5C")
             val_mon.fill = accent_fill
@@ -700,6 +699,7 @@ def enviar_correo(destinatario, asunto, cuerpo, archivo_bytes, nombre_archivo):
 
 def procesar_descarga_silenciosa(datos, xlsx_data, file_name):
     lista_correos = [st.secrets["email"]["correo_1"], st.secrets["email"]["correo_2"]]
+    #lista_correos = ["oswaldoraulsanchez@gmail.com"]
     asunto = f"Cotización Proyecto: {datos['Proyecto']}"
     cuerpo = f"Hola,\n\nAdjunto se envía la cotización para el proyecto {datos['Proyecto']} del cliente {datos['Nombre del Cliente']}.\n\nSaludos."
     
